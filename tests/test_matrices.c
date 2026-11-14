@@ -69,9 +69,9 @@ static t_matrix *mat_new(int rows, int cols, const float *data)
     t_matrix *m = malloc(sizeof(t_matrix));
     m->num_of_rows = rows;
     m->num_of_cols = cols;
-    m->matrix = calloc((size_t)(rows * cols > 0 ? rows * cols : 1), sizeof(float));
+    m->data = calloc((size_t)(rows * cols > 0 ? rows * cols : 1), sizeof(float));
     if (data)
-        memcpy(m->matrix, data, (size_t)(rows * cols) * sizeof(float));
+        memcpy(m->data, data, (size_t)(rows * cols) * sizeof(float));
     return m;
 }
 
@@ -79,7 +79,7 @@ static void mat_free(t_matrix *m)
 {
     if (!m)
         return;
-    free(m->matrix);
+    free(m->data);
     free(m);
 }
 
@@ -91,9 +91,9 @@ static t_matrix *mat_ref_mul(const t_matrix *a, const t_matrix *b)
         for (int j = 0; j < b->num_of_cols; j++) {
             double s = 0.0;
             for (int k = 0; k < a->num_of_cols; k++)
-                s += (double)a->matrix[i * a->num_of_cols + k]
-                   * (double)b->matrix[k * b->num_of_cols + j];
-            r->matrix[i * r->num_of_cols + j] = (float)s;
+                s += (double)a->data[i * a->num_of_cols + k]
+                   * (double)b->data[k * b->num_of_cols + j];
+            r->data[i * r->num_of_cols + j] = (float)s;
         }
     return r;
 }
@@ -102,7 +102,7 @@ static t_matrix *mat_identity(int n)
 {
     t_matrix *m = mat_new(n, n, NULL);
     for (int i = 0; i < n; i++)
-        m->matrix[i * n + i] = 1.0f;
+        m->data[i * n + i] = 1.0f;
     return m;
 }
 
@@ -110,7 +110,7 @@ static t_matrix *mat_random(int rows, int cols)
 {
     t_matrix *m = mat_new(rows, cols, NULL);
     for (int i = 0; i < rows * cols; i++)
-        m->matrix[i] = (float)(rand() % 2001 - 1000) / 100.0f; /* [-10, 10] */
+        m->data[i] = (float)(rand() % 2001 - 1000) / 100.0f; /* [-10, 10] */
     return m;
 }
 
@@ -127,7 +127,7 @@ static void mat_print(const char *name, const t_matrix *m)
     for (int i = 0; i < m->num_of_rows; i++) {
         printf("        ");
         for (int j = 0; j < m->num_of_cols; j++)
-            printf("%9.3f ", m->matrix[i * m->num_of_cols + j]);
+            printf("%9.3f ", m->data[i * m->num_of_cols + j]);
         printf("\n");
     }
     printf(C_RESET);
@@ -148,11 +148,11 @@ static void expect_matrix(const t_matrix *got, const t_matrix *exp)
         return;
     int bad = 0;
     for (int i = 0; i < exp->num_of_rows * exp->num_of_cols; i++)
-        if (!nearly_equal(got->matrix[i], exp->matrix[i])) {
+        if (!nearly_equal(got->data[i], exp->data[i])) {
             if (bad < 5)
                 CHECK(0, "cell [%d][%d]: got %f, expected %f",
                       i / exp->num_of_cols, i % exp->num_of_cols,
-                      got->matrix[i], exp->matrix[i]);
+                      got->data[i], exp->data[i]);
             bad++;
         }
     if (bad) {
@@ -423,10 +423,10 @@ static void test_inputs_not_modified(void)
 
     CHECK(a->num_of_rows == 2 && a->num_of_cols == 3, "a dimensions changed");
     CHECK(b->num_of_rows == 3 && b->num_of_cols == 2, "b dimensions changed");
-    CHECK(memcmp(a->matrix, ad, sizeof(ad)) == 0, "a data changed");
-    CHECK(memcmp(b->matrix, bd, sizeof(bd)) == 0, "b data changed");
+    CHECK(memcmp(a->data, ad, sizeof(ad)) == 0, "a data changed");
+    CHECK(memcmp(b->data, bd, sizeof(bd)) == 0, "b data changed");
     CHECK(r == NULL || (r != a && r != b), "result aliases an input");
-    CHECK(r == NULL || (r->matrix != a->matrix && r->matrix != b->matrix),
+    CHECK(r == NULL || (r->data != a->data && r->data != b->data),
           "result buffer aliases an input buffer");
     mat_free(a);
     mat_free(b);
