@@ -1,5 +1,18 @@
 #include "../headers/neuron_layer.h"
 #include <stdlib.h>
+#include <stdio.h>
+
+static void	populate_array(float *array, float value, int lenght)
+{
+	int	i;
+
+	i = 0;
+	while (i < lenght)
+	{
+		array[i] = value;
+		i++;
+	}
+}
 
 static t_layer	*init_input_layer(int count)
 {
@@ -9,23 +22,25 @@ static t_layer	*init_input_layer(int count)
 	if (!input_layer)
 		return (NULL);
 	input_layer->matrix = init_matrix(count, 1);
+	populate_array(input_layer->matrix->data, 0.0f, count);
 	input_layer->biases = NULL;
 	input_layer->next = NULL;
 	input_layer->prev = NULL;
 	return (input_layer);
 }
 
-static t_layer	*init_layer
-(int nodes)
+static t_layer	*init_layer(int nodes)
 {
-	t_layer	*hidden_layer;
+	t_layer	*layer;
 
-	hidden_layer = malloc(sizeof(t_layer));
-	hidden_layer->matrix = init_matrix(nodes, 1);
-	hidden_layer->biases = malloc(nodes * sizeof(float));
-	hidden_layer->next = NULL;
-	hidden_layer->prev = NULL;
-	return (hidden_layer);
+	layer = malloc(sizeof(t_layer));
+	layer->matrix = init_matrix(nodes, 1);
+	populate_array(layer->matrix->data, 0.0f, nodes);
+	layer->biases = malloc(nodes * sizeof(float));
+	populate_array(layer->biases, 0.1f, nodes);
+	layer->next = NULL;
+	layer->prev = NULL;
+	return (layer);
 }
 
 static t_weights	*init_weights(int row_c, int col_c)
@@ -34,6 +49,7 @@ static t_weights	*init_weights(int row_c, int col_c)
 
 	new = malloc(sizeof(t_weights));
 	new->matrix = init_matrix(row_c, col_c);
+	populate_array(new->matrix->data, 0.1f, row_c * col_c);
 	new->prev = NULL;
 	new->next = NULL;
 	return (new);
@@ -93,6 +109,25 @@ static void	create_and_connect_output_layer(int count, t_layer *neural_net)
 	weights = init_weights(output_layer->matrix->num_of_rows,
 		last_layer->matrix->num_of_rows);
 	connect_layers(last_layer, output_layer, weights);
+}
+
+void	print_neural_network(t_layer *neural_network)
+{
+	t_layer		*curr_l;
+	t_weights	*curr_w;
+
+	curr_l = neural_network;
+	while (curr_w)
+	{
+		printf("\nLayer:\n");
+		print_matrix(curr_l->matrix);
+		curr_w = curr_l->next;
+		if (!curr_w)
+			break;
+		printf("\nWeights:\n");
+		print_matrix(curr_w->matrix);
+		curr_l = curr_w->next;
+	}
 }
 
 t_layer	*init_neural_net(int input, int output, int hidden_layers,

@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-static bool is_matrices_valid(t_matrix *a, t_matrix *b)
+static bool is_matrices_valid(const t_matrix *a, const t_matrix *b)
 {
     if (!a || !b)
         return (false);
