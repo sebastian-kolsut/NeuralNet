@@ -57,14 +57,13 @@ static void    multiply_row(const t_matrix *a, const t_matrix *b,
     }
 }
 
-t_matrix    *multiply_matrices(const t_matrix *a, const t_matrix *b)
+void    multiply_matrices(const t_matrix *a, const t_matrix *b,
+    t_matrix *res)
 {
     int         i;
-    t_matrix    *res;
 
     if (!is_matrices_valid(a, b))
         return (NULL);
-    res = create_results_matrix(a, b);
     i = 0;
     while (i < a->num_of_rows)
     {
