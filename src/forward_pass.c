@@ -1,6 +1,7 @@
 #include "../headers/neuron_layer.h"
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 static bool is_input_size_valid(int input_size, const t_layer *neural_network)
 {
@@ -34,6 +35,7 @@ static void	add_biases(t_layer *layer)
 	{
 		layer->matrix->data[i] += layer->biases[i];
 		i++;
+		printf("OK biases %d/%d\n", i, nodes);
 	}
 }
 
@@ -43,16 +45,30 @@ void	forward_pass(t_layer *neural_network, float *input, int input_size)
 	t_weights	*curr_w;
 
 	if (!is_input_size_valid(input_size, neural_network))
-		return (NULL);
+		return ;
 	insert_input_to_neural_net(input, neural_network, input_size);
 	// free(input);
 	curr_l = neural_network;
 	curr_w = curr_l->next;
-	while (curr_w->next)
+	while (curr_l->next)
 	{
+		printf("OK\n");
+		printf("%p, %p\n", curr_l->next, curr_w->next);
 		multiply_matrices(curr_w->matrix, curr_l->matrix, curr_w->next->matrix);
 		curr_l = curr_w->next;
 		add_biases(curr_l);
 		curr_w = curr_l->next;
 	}
+	printf("OK\n");
+}
+
+int main(void)
+{
+	t_layer	*neural_net;
+	float	*input = (float[]){1.0f, 0.0f, 1.2f};
+
+	neural_net = init_neural_net(3, 3, 2, 4);
+	forward_pass(neural_net, input, 3);
+	print_neural_network(neural_net);
+	return (0);
 }

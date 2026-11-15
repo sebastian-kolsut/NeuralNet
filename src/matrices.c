@@ -63,12 +63,11 @@ void    multiply_matrices(const t_matrix *a, const t_matrix *b,
     int         i;
 
     if (!is_matrices_valid(a, b))
-        return (NULL);
+        return ;
     i = 0;
     while (i < a->num_of_rows)
     {
         multiply_row(a, b, res, i);
         i++;
     }
-    return (res);
 }

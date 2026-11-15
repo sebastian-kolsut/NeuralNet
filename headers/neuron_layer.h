@@ -19,4 +19,8 @@ typedef struct s_layer
     float       *biases;
 }               t_layer;
 
+t_layer *init_neural_net(int input, int output, int hidden_layers,
+    int nodes_count);
+void	print_neural_network(t_layer *neural_network);
+
 #endif
